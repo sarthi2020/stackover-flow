@@ -9,6 +9,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
 import time
+import tracemalloc
+
+tracemalloc.start()
 
 # conn = mysql.connector.connect(user='root', 
 #                                password='', 
@@ -142,6 +145,8 @@ c2 = answers_preprocessing(answers["data"])
 print("code snippets in answers")
 print(c2)
 
+print("Total Number of questions with code snippets", len(final_questions["data"]))
+print("Total Number of answers with code snippets", len(final_answers["data"]))
 print("\nTIME TAKEN= ", "{:.2f} seconds\n".format(time.time()-start_time))
 
 pp.pprint(final_questions["data"][1])
@@ -150,6 +155,10 @@ pp.pprint(final_answers["data"][1])
 # trying to convert json data to pandas
 df = pd.json_normalize(data["posts"]["row"])
 print(df.sample(3))
+
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+tracemalloc.stop()
 # df = pd.read_json(data)
 
 
