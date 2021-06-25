@@ -147,9 +147,12 @@ pp.pprint(final_questions["data"][1])
 pp.pprint(final_answers["data"][1])
 
 # trying to convert json data to pandas
-df = pd.json_normalize(data["posts"]["row"])
+df = pd.json_normalize(final_questions["data"])
 print(df.sample(3))
-df.to_csv("Devops.csv")
+df.to_csv("final_questions_devops.csv")
+
+df = pd.json_normalize(final_answers["data"])
+df.to_csv("final_answers_devops.csv")
 
 def ram_usage():	
 	current, peak = tracemalloc.get_traced_memory()
