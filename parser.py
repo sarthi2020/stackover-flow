@@ -1,18 +1,16 @@
 import json
-# import pymongo
-# import xmltodict
 import pprint 
-# import pandas as pd
 import xml.etree.ElementTree as ET
-# import mysql.connector
-# import seaborn as sns
-# import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
 import time
 import xml.parsers.expat
 import tracemalloc
-
-tracemalloc.start()
+# import pymongo
+# import xmltodict
+# import mysql.connector
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+# import pandas as pd
 
 xml_file = '/Users/ishaan/Desktop/stackExchange/devops.stackexchange.com/Posts.xml'
 BATCH_SIZE = 1000
@@ -21,8 +19,8 @@ questions = {"data" : []}
 answers = {"data" : []}
 other = {"data" : []}
 
-# final_questions = {"data":[]}
-# final_answers = {"data":[]}
+final_q = {"data":[]}
+final_a = {"data":[]}
 
 start_time = time.time()
 
@@ -39,6 +37,24 @@ question_keys = ['Id','Tags','ContentLicense','AnswerCount','AcceptedAnswerId',
 
 answer_keys = ['Id','ParentId','ContentLicense','CreationDate','Body','OwnerUserId','LastActivityDate']
 
+total_count = 0
+question_code_snippets = 0
+answer_code_snippets = 0
+
+questions_count = 0
+answers_count = 0
+other_count = 0
+
+final_questions_count = 0
+final_answers_count = 0
+
+def start_ram_usage():
+	tracemalloc.start()
+
+def ram_usage():
+	current, peak = tracemalloc.get_traced_memory()
+	print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+	tracemalloc.stop()
 
 
 def preprocessing(item):
@@ -102,100 +118,66 @@ def answers_preprocessing(data):
 # 		print(item.attrib)
 # print(len(root))	
 
-total_count = 0
-question_code_snippets = 0
-answer_code_snippets = 0
 
-questions_count = 0
-answers_count = 0
-other_count = 0
+def xml_parsing():
+	pass
 
-final_questions_count = 0
-final_answers_count = 0
+if(__name__ == "__main__"):
+	for event, elem in ET.iterparse(xml_file, events=('start','end')):
+		if(elem.tag == "row"):
+			dict = elem.attrib
 
-for event, elem in ET.iterparse(xml_file, events=('start','end')):
-	if(elem.tag == "row"):
-		dict = elem.attrib
-		# print(total_count)
-		# print(BATCH_SIZE)
-		# print(total_count%BATCH_SIZE)
-		if(event == 'start'):
-			preprocessing(dict)
-		elif(event == 'end'):
-			total_count += 1
-			elem.clear()
-		
-	if((total_count%BATCH_SIZE == 0 and total_count > 0) or elem.tag == "posts"):
-		print(total_count)
+			if(event == 'start'):
+				preprocessing(dict)
+			elif(event == 'end'):
+				total_count += 1
+				elem.clear()
+			
+		if((total_count%BATCH_SIZE == 0 and total_count > 0) or elem.tag == "posts"):
+			print(total_count)
 
-		(final_questions,qc) = questions_preprocessing(questions["data"])
-		(final_answers, ac) = answers_preprocessing(answers["data"])
-		
-		question_code_snippets+=qc
-		answer_code_snippets+=ac
-		
-		questions_count+=len(questions["data"])
-		answers_count+=len(answers["data"])
-		other_count+=len(other["data"])
+			(final_questions,qc) = questions_preprocessing(questions["data"])
+			(final_answers, ac) = answers_preprocessing(answers["data"])
+			
+			question_code_snippets+=qc
+			answer_code_snippets+=ac
+			
+			questions_count+=len(questions["data"])
+			answers_count+=len(answers["data"])
+			other_count+=len(other["data"])
 
-		final_questions_count+=len(final_questions["data"])
-		final_answers_count+=len(final_answers["data"])
-		#SAVING FINAL QUESTIONS
-		questions["data"].clear()
-		answers["data"].clear()
-		other["data"].clear()
-			# pp.pprint(dict)
-		# print("<>===============================<>")
+			final_questions_count+=len(final_questions["data"])
+			final_answers_count+=len(final_answers["data"])
+			
+			#SAVING FINAL QUESTIONS
+			final_q["data"].extend(final_questions["data"])
+			final_a["data"].extend(final_answers["data"])
+			
+			questions["data"].clear()
+			answers["data"].clear()
+			other["data"].clear()
 
+	print("code snippets in questions ",question_code_snippets)
 
+	print("code snippets in answers ",answer_code_snippets)
 
-# pp.pprint(final_questions)
-# pp.pprint(final_answers)
+	print("Total questions with code snippets ", final_questions_count)
+	print("Total answers with code snippets ", final_answers_count)
 
-print("code snippets in questions")
-print(question_code_snippets)
+	if(len(other["data"])+len(answers["data"])+len(questions["data"]) != 0):
+		print(len(questions["data"]))
+		print(len(answers["data"]))
+		print(len(other["data"]))
 
+	print("Total questions ",questions_count)
+	print("Total Answers ",answers_count)
+	print("Other ",other_count)
+	print("{:,}".format(total_count))
 
-print("code snippets in answers")
-print(answer_code_snippets)
+	print("\nTIME TAKEN= ", "{:.2f} seconds\n".format(time.time()-start_time))
 
-print("Total questions with code snippets ", final_questions_count)
-print("Total answers with code snippets ", final_answers_count)
-
-if(len(other["data"])+len(answers["data"])+len(questions["data"]) != 0):
-	print(len(questions["data"]))
-	print(len(answers["data"]))
-	print(len(other["data"]))
-
-print("Total questions ",questions_count)
-print("Total Answers ",answers_count)
-print("Other ",other_count)
-print("{:,}".format(total_count))
-
-print("\nTIME TAKEN= ", "{:.2f} seconds\n".format(time.time()-start_time))
-
-pp.pprint(final_questions["data"][0])
-pp.pprint(final_answers["data"][0])
-
-current, peak = tracemalloc.get_traced_memory()
-print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
-tracemalloc.stop()
-
-# #printing json data
-# pp.pprint(data["posts"]["row"][0])
-# print("Total posts  " + str(len(data["posts"]["row"])))
-
-
-# preprocessing(data["posts"]["row"])
-# print("Questions  " + str(len(questions["data"])))
-# print("Answers  " + str(len(answers["data"])))
-# print("Other  " + str(len(other["data"])))
-
-
-
-
-
-
+	pp.pprint(final_q["data"][0])
+	pp.pprint(final_a["data"][0])
 
 
 
@@ -209,24 +191,3 @@ tracemalloc.stop()
 # df = pd.json_normalize(data["posts"]["row"])
 # print(df.sample(3))
 # df = pd.read_json(data)
-
-
-#trying to do the same
-# def intr_docs(xml_doc):
-# 	attr = xml_doc.attrib
-
-# 	for xml in xml_doc.iter('document'):
-# 		doc_dict = attr.copy()
-# 		doc_dic.update(xml.attrib)
-# 		doc_dict['data'] = xml.text
-
-# 		yield doc_dict
-
-# tree = ET.parse('/Users/ishaan/Desktop/stackExchange/devops.stackexchange.com/Posts.xml')
-# root = tree.getroot()
-# print(root)
-# print(len(root))	
-# doc_df = pd.DataFrame(list(intr_docs(root)))
-
-# print(doc_df)
-

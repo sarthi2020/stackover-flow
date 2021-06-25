@@ -11,15 +11,9 @@ from bs4 import BeautifulSoup
 import time
 import tracemalloc
 
-tracemalloc.start()
-
-# conn = mysql.connector.connect(user='root', 
-#                                password='', 
-#                                host='localhost', 
-#                                database='database')
-
-#For printing 
-
+def start_ram_usage():
+	tracemalloc.start()
+ 
 start_time = time.time()
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -155,29 +149,12 @@ pp.pprint(final_answers["data"][1])
 # trying to convert json data to pandas
 df = pd.json_normalize(data["posts"]["row"])
 print(df.sample(3))
+df.to_csv("Devops.csv")
 
-current, peak = tracemalloc.get_traced_memory()
-print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
-tracemalloc.stop()
+def ram_usage():	
+	current, peak = tracemalloc.get_traced_memory()
+	print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+	tracemalloc.stop()
 # df = pd.read_json(data)
 
-
-#trying to do the same
-# def intr_docs(xml_doc):
-# 	attr = xml_doc.attrib
-
-# 	for xml in xml_doc.iter('document'):
-# 		doc_dict = attr.copy()
-# 		doc_dic.update(xml.attrib)
-# 		doc_dict['data'] = xml.text
-
-# 		yield doc_dict
-
-# tree = ET.parse('/Users/ishaan/Desktop/stackExchange/devops.stackexchange.com/Posts.xml')
-# root = tree.getroot()
-# print(root)
-# print(len(root))	
-# doc_df = pd.DataFrame(list(intr_docs(root)))
-
-# print(doc_df)
 
