@@ -102,7 +102,7 @@ def questions_preprocessing(data):
 					temp[key] = item[key]
 				else:
 					temp[key] = ""
-			temp['@Code'] = [tag for tag in soup.find_all('pre')]
+			temp['@Code'] = [tag.text for tag in soup.find_all('pre')]
 			
 			final_questions["data"].append(temp)
 		
@@ -122,7 +122,7 @@ def answers_preprocessing(data):
 					temp[key] = item[key]
 				else:
 					temp[key] = ""
-			temp['@Code'] = [tag for tag in soup.find_all('pre')]
+			temp['@Code'] = [tag.text for tag in soup.find_all('pre')]
 			
 			final_answers["data"].append(temp)
 		
